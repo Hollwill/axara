@@ -1,0 +1,74 @@
+{% extends 'main/main.html' %}
+
+{% load thumbnail %}
+
+{% block title %}Главная{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="carousel-index">
+            <div id="carousel-main" class="carousel slide carousel-fade" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                    {% for carousel_item in carousel_items %}
+                        <div class="carousel-item {% if forloop.first %} active {% endif %}">
+                            <a href="{{ carousel_item.link }}">
+                                <picture class="img-container d-block w-100">
+                                    {% thumbnail carousel_item.photo "1920x1084" crop="center" as im %}
+                                        <source srcset="{{ im.url }}" media="(min-width: 1200px)">
+                                    {% endthumbnail %}
+                                    {% thumbnail carousel_item.photo "1516x1400" crop="center" as im %}
+                                        <source srcset="{{ im.url }}" media="(min-width: 768px)">
+                                    {% endthumbnail %}
+                                    {% thumbnail carousel_item.photo "768x1780" crop="center" as im %}
+                                        <img src="{{ im.url }}" alt="">
+                                    {% endthumbnail %}
+                                </picture>
+                            </a>
+                            <div class="carousel-caption d-block">
+                                <h5>{{ carousel_item.title }}</h5>
+                                <p>{{ carousel_item.subtitle }}</p>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <button class="carousel-control-prev carousel-control" type="button" data-bs-target="#carousel-main"
+                    data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next carousel-control" type="button" data-bs-target="#carousel-main"
+                    data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div>
+        {% for item in index_items %}
+
+
+            <div style="position: relative;" class="img-container">
+            <a href="{{ item.link }}">
+                <picture class="img-container d-block w-100">
+                    {% thumbnail item.photo "1920x1084" crop="center" as im %}
+                        <source srcset="{{ im.url }}" media="(min-width: 1200px)">
+                    {% endthumbnail %}
+                    {% thumbnail item.photo "1516x1400" crop="center" as im %}
+                        <source srcset="{{ im.url }}" media="(min-width: 768px)">
+                    {% endthumbnail %}
+                    {% thumbnail item.photo "768x1780" crop="center" as im %}
+                        <img src="{{ im.url }}" alt="">
+                    {% endthumbnail %}
+                </picture>
+            </a>
+                <div class="carousel-caption d-block">
+                    <h5>{{ item.title }}</h5>
+                    <p>{{ item.subtitle }}</p>
+                </div>
+            </div>
+
+
+        {% endfor %}
+
+    </div>
+{% endblock %}

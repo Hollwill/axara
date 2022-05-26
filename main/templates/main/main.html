@@ -1,0 +1,259 @@
+{% load bootstrap5 %}
+{% load crispy_forms_tags %}
+{% load messages_modal %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+    {% block extrahead %}
+
+    {% endblock %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{% static 'css/index.css' %}">
+    <title>{% block title %}Главная{% endblock %}</title>
+</head>
+<body style="position: relative;">
+<header>
+    <nav id="navbar" {% if request.path == "/" %}style="background: none;" {% endif %}
+         class="navbar fixed-top navbar-expand-lg navbar-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{% url 'main:index' %}"><img src="{% static "icons/logo.png" %}" alt=""></a>
+            <div class="nav-right d-inline-block">
+                {% url 'order:make' as make_order %}
+                {% if not request.get_full_path == make_order %}
+                    <button type="button" class="btn cart-icon d-inline-block d-lg-none" data-toggle="modal"
+                            data-bs-target="#modal-cart"
+                            data-bs-toggle="modal"
+                            data-bs-backdrop="false">
+                        <img class="mx-2 "
+                             src="{% static 'icons/shopping_bag.svg' %}"
+                             alt="cart">
+                        {% with cart_length=cart|length %}
+                            <p class="cart-icon-count">{% if cart_length %}{{ cart_length }}{% endif %}</p>
+                        {% endwith %}
+                    </button>
+                {% endif %}
+
+
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'catalog:catalog' %}?novelties">Новинки</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            Каталог
+                        </a>
+                        <ul class="dropdown-menu " aria-labelledby="navbarDropdown">
+                            {% for category in nav_categories %}
+                                <li><a class="dropdown-item"
+                                       href="{{ category.get_absolute_url }}">{{ category.name }}</a></li>
+
+                            {% endfor %}
+
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">LookBook</a>
+                    </li>
+                </ul>
+                {% if not request.get_full_path == make_order %}
+                    <button type="button" class=" cart-icon btn d-none d-lg-block" data-toggle="modal"
+                            data-bs-target="#modal-cart"
+                            data-bs-toggle="modal"
+                            data-bs-backdrop="false">
+                        <img class="mx-2 "
+                             src="{% static 'icons/shopping_bag.svg' %}"
+                             alt="cart">
+                        {% with cart_length=cart|length %}
+                            <p class="cart-icon-count">{% if cart_length %}{{ cart_length }}{% endif %}</p>
+                        {% endwith %}
+
+                    </button>
+                {% endif %}
+
+
+
+                {% if  user.is_authenticated %}
+                    <a class="d-none d-lg-block" href="{% url 'user_profile:profile' %}"><img class="mx-2"
+                                                                                              src="{% static 'icons/account_circle.svg' %}"
+                                                                                              alt="account"></a>
+                    <a type="button" class="btn btn-primary mt-2 mt-lg-0 d-inline-block d-lg-none"
+                       href="{% url 'user_profile:profile' %}">Профиль</a>
+                    <a type="button" class="btn btn-primary mt-2 mt-lg-0 " href="?logout">Выйти</a>
+                {% else %}
+                    <button type="button" class="btn btn-primary mt-2 mt-lg-0 " data-bs-toggle="modal"
+                            data-bs-target="#modal-login">Войти
+                    </button>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+</header>
+<main style="{% if not request.path == "/" %}margin-top: 116px;{% endif %}">
+    {% block content %}
+
+    {% endblock %}
+    {% bootstrap_modal_messages %}
+</main>
+
+<footer>
+    <div class="container-fluid bg-light d-flex justify-content-between pb-2 pt-1">
+        <div class="container">Axara.ru ©</div>
+        <div class="container"></div>
+    </div>
+</footer>
+<div id="modal-login" class="modal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Ваш аккаунт</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="is_auth_form" value="on">
+                    {{ request.auth_form|crispy }}
+                    {% bootstrap_button button_type="submit" content="Войти" %}
+                </form>
+            </div>
+            <div class="modal-footer d-flex justify-content-center">
+                <p>У вас ещё нет аккаунта?
+                    <a class="btn btn-primary" data-bs-toggle="modal" href="#modal-create" role="button">Зарегистрироваться</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="modal-create" class="modal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Регистрация</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="is_creation_form" value="on">
+                    {{ request.creation_form|crispy }}
+                    {% bootstrap_button button_type="submit" content="Зарегистрироваться" %}
+
+                </form>
+
+            </div>
+            <div class="modal-footer d-flex justify-content-center">
+                <p>У вас уже есть аккаунт?
+                    <a class="btn btn-primary" data-bs-toggle="modal" href="#modal-login"
+                       role="button">Войти</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modal-cart" class="modal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Ваша корзина</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            {% if cart %}
+                <div class="modal-body cart-items-body">
+                    <div class="cart-item-list ">
+                        {% for item in cart %}
+                            {% with product_variant=item.product_variant %}
+                                {% with product=product_variant.product %}
+                                    <div class="cart-item mb-4">
+                                        <div class="container-fluid">
+                                            <div class="row">
+                                                <div class="col-4"><img class="img-thumbnail"
+                                                                        src="{{ product_variant.photos.first.photo.url }}"
+                                                                        alt=""></div>
+                                                <div class="col-8">
+                                                    <h4>{{ product.name }}</h4>
+                                                    <h5>{{ product_variant.price }} руб.</h5>
+                                                    <div class="d-inline-block cart-element-count">
+                                                        <p class="fs-6 d-inline-block">Количество:</p>
+                                                        <button class="btn cart-icon"
+                                                                onclick="subQuantity({{ product_variant.id }}, {{ item.size }})">
+                                                            <img src="{% static 'icons/remove.svg' %}" alt="remove">
+                                                        </button>
+                                                        <span>{{ item.quantity }}</span>
+                                                        <button class="btn cart-icon"
+                                                                onclick="addQuantity({{ product_variant.id }}, {{ item.size }})">
+                                                            <img src="{% static 'icons/add.svg' %}" alt="add">
+                                                        </button>
+                                                    </div>
+                                                    <p>Цвет: {{ product_variant.color.name }}</p>
+                                                    <p>Размер: {{ item.size }}</p>
+                                                    <button class="btn btn-danger"
+                                                            onclick="removeCartItem({{ product_variant.id }}, {{ item.size }})">
+                                                        удалить
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endwith %}
+                            {% endwith %}
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="modal-footer cart-items-footer d-block">
+                    <div class="cart-full-price d-flex justify-content-between">
+                        <p>Итого</p>
+                        <p><span id="cart-full-price">{{ cart_obj.full_price }}</span> руб</p>
+                    </div>
+                    <div class="cart-link">
+                        <a href="{% url 'order:make' %}" class="btn btn-primary w-100">Оформить заказ</a>
+                    </div>
+                </div>
+            {% endif %}
+            <div class="cart-empty modal-body d-flex justify-content-center{% if cart %} d-none {% else %}d-block{% endif %}">
+                <p>В вашей корзине нет товаров</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if request.path == "/" %}
+    <script src="{% static 'js/transparent_nav.js' %}"></script>
+{% endif %}
+{% if request.creation_form.errors %}
+    <script src="{% static 'js/show_creation_modal_on_load.js' %}"></script>
+{% endif %}
+{% if request.auth_form.errors %}
+    <script src="{% static 'js/show_auth_modal_on_load.js' %}"></script>
+{% endif %}
+<script src="{% static 'js/cart.js' %}"></script>
+
+<script>
+    window.addEventListener("load", function (event) {
+        let myAlert = document.querySelectorAll('.toast');
+        for (alert of myAlert) {
+            let bsAlert = new bootstrap.Toast(alert);
+            bsAlert.show();
+        }
+    }, false);
+</script>
+{% block extrafooter %}
+
+{% endblock %}
+</body>
+</html>

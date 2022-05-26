@@ -1,0 +1,21 @@
+{% extends 'main/main.html' %}
+{% load render_bundle from webpack_loader %}
+
+{% block title %}Создание заказа{% endblock %}
+{% block extrahead %}
+    <link href="{% static 'src/vue/dist/css/app.css' %}" rel=stylesheet>
+
+{% endblock %}
+
+{% block content %}
+    <div id="app">
+        <app></app>
+    </div>
+
+
+{% endblock %}
+
+{% block extrafooter %}
+    <script type="text/javascript" src="{% static 'src/vue/dist/js/chunk-vendors.js' %}"></script>
+    <script type="text/javascript" src="{% static 'src/vue/dist/js/app.js' %}"></script>
+{% endblock %}

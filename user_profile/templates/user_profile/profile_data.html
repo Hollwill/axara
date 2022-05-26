@@ -1,0 +1,40 @@
+{% extends 'main/main.html' %}
+{% load crispy_forms_tags %}
+{% load bootstrap5 %}
+
+{% block title %}Профиль пользователя{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row justify-content-center mb-4">
+            <div class="col-sm-12 col-md-3 col-lg-2 col-xl-2">
+                <p><a href="">Личные данные</a></p>
+                <p><a href="">Мои заказы</a></p>
+                <p><a href="">Избранное</a></p>
+                <p><a href="">Выйти</a></p>
+
+            </div>
+            <div class="col-sm-12 col-md-1 col-lg-2 col-xl-2"></div>
+            <div class="col-sm-12 col-md-5 col-lg-4 col-xl-4">
+                <form method="POST">
+                    <h2>Личные данные</h2>
+                    {% csrf_token %}
+                    {{ user_form.first_name|as_crispy_field }}
+                    {{ user_form.last_name|as_crispy_field }}
+                    {{ profile_form.patronymic|as_crispy_field }}
+                    {{ user_form.email|as_crispy_field }}
+                    {{ profile_form.birth_date|as_crispy_field }}
+                    <h3>Изменить пароль</h3>
+                    {{ change_password_form|crispy }}
+                    {% bootstrap_button button_type="submit" content="Сохранить анкету" %}
+                </form>
+
+            </div>
+            <div class="col-sm-12 col-md-3 col-lg-4 col-xl-4"></div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extrafooter %}
+    {% load i18n %}
+{% endblock %}

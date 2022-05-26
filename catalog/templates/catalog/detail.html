@@ -1,0 +1,182 @@
+{% extends 'main/main.html' %}
+
+{% load bootstrap5 %}
+{% load crispy_forms_tags %}
+
+{% block title %}Product detail {% comment %} TODO: добавить название товара{% endcomment %} {% endblock %}
+
+{% block content %}
+    <div class="container-md">
+        <div class="row row-cols-1 row-cols-md-2 align-items-between">
+            <div class="col col-lg-7">
+                <div class="d-md-none mobile-galery">
+                    <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            {% for photo_obj in variant.photos.all %}
+                                <div class="carousel-item  {% if forloop.first %}active{% endif %} ">
+                                    <img src="{{ photo_obj.photo.url }}"
+                                         class="d-block w-100" alt="">
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls"
+                                data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls"
+                                data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="d-none d-md-block non-mobile-galery ">
+                    <div class="container">
+
+
+                        {% for photo_obj in variant.photos.all %}
+                            {% if forloop.first %}
+                                <div class="row">
+                                    <div class="col">
+                                        <img class="img-fluid"
+                                             src="{{ photo_obj.photo.url }}"
+                                             alt="">
+                                    </div>
+                                </div>
+                            {% else %}
+                                {% if forloop.counter0 == 1 %}
+                                    <div class="row row-cols-2">
+                                {% endif %}
+                            <div class="col mt-3"><img class="img-fluid"
+                                                       src="{{ photo_obj.photo.url }}"
+                                                       alt=""></div>
+                            {% if forloop.last %}
+                                </div>
+                            {% endif %}
+                            {% endif %}
+
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="col col-lg-5 product-detail sticky-top align-self-start">
+                <p class="fs-4 fw-bold mb-2">{{ product.name }}</p>
+                <p class="fs-5 mb-4">{{ variant.price }} руб.</p>
+                <div class="mb-2">
+                    <span class="text-green">Цвет: </span><span>{{ variant.color.name }}</span>
+                </div>
+                <div class="color-inputs mb-4">
+                    {% for c_variant in product.variants.all %}
+                        {% with color=c_variant.color %}
+                            {#                            <a href="{{ c_variant.get_absolute_url }}"#}
+                            {#                               style="color: {{ color.color }}">{{ color.name }}</a>#}
+
+                            <a href="{% if variant == c_variant %}# {% else %}{{ c_variant.get_absolute_url }}{% endif %}"
+                               class="btn mx-2 p-0 {% if variant == c_variant %}active disabled {% endif %}"
+                               style="background-color: {{ color.color }};"></a>
+                        {% endwith %}
+                    {% endfor %}
+                </div>
+                <form method="POST" action="">
+                    {% csrf_token %}
+                    <input name="variant_id" type="hidden" value="{{ variant.id }}">
+                    <select name="size" class="form-select form-select-lg mb-2" aria-label="Default select example">
+                        <option selected disabled hidden>Выберите размер</option>
+                        {% for size in product.sizes %}
+                            <option value="{{ size }}">{{ size }}</option>
+                        {% endfor %}
+
+                    </select>
+                    <button type="submit" class=" w-100 btn btn-dark">Добавить в корзину</button>
+                </form>
+
+                <hr>
+                <div class="accordion" id="product-accordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingOne">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                Описание
+                            </button>
+                        </h2>
+                        <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne"
+                             data-bs-parent="#accordionExample">
+                            <div class="accordion-body pt-2">
+                                <p class="mb-2">Состав: {{ product.fabric_structure }}</p>
+                                <p>{{ product.description }}</p>
+                                <p>АРТ: {{ variant.vendor_code }} </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingTwo">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                Вопросы и ответы
+                            </button>
+                        </h2>
+                        <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo"
+                             data-bs-parent="#accordionExample">
+                            <div class="accordion-body">
+                                <button class="btn btn-dark mb-4" data-bs-toggle="modal"
+                                        data-bs-target="#modal-question">Задать вопрос
+                                </button>
+
+                                <div class="question-list">
+                                    {% for question in variant.questions.all %}
+                                        <div class="question-item mb-3">
+                                            <div class="question mb-2">
+                                                <div class="question-header d-flex justify-content-between">
+                                                    <span class="header-name">{{ question.questioner }}</span>
+                                                    <span class="fw-light">{{ question.question_date }}</span>
+                                                </div>
+                                                <div class="question-text">
+                                                    <p>{{ question.text}}?</p>
+                                                </div>
+                                            </div>
+                                            {% if question.answered %}
+                                                <div class="answer border-start ps-2 border-3">
+                                                    <div class="answer-header d-flex justify-content-between">
+                                                        <span class="header-name">Администратор</span>
+                                                        <span class="fw-light">{{ question.answer_date}}</span>
+                                                    </div>
+                                                    <div class="answer-text">
+                                                        <p>{{ question.answer}}</p>
+                                                    </div>
+                                                </div>
+                                            {% endif %}
+
+                                        </div>
+                                    {% endfor %}
+
+                                </div>
+
+                                <p>Чтобы узнать дополнительную информацию о товаре — задайте свой вопрос. Служба
+                                    поддержки CHARUEL ответит на него в ближайшее время</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="modal-question" class="modal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">ЗАДАТЬ ВОПРОС</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="is_q_a_form" value="on">
+                        {{ q_a_form|crispy }}
+                        {% bootstrap_button button_type="submit" button_class="btn-dark" content="Задать вопрос" %}
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
