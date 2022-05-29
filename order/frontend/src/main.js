@@ -5,6 +5,7 @@ import axios from 'axios'
 import VueAxios from 'vue-axios'
 import {plugin, defaultConfig} from '@formkit/vue'
 import {ru} from '@formkit/i18n'
+import Maska from 'maska'
 
 const app = createApp(App)
 
@@ -18,6 +19,7 @@ app.use(plugin, defaultConfig({
     locale: 'ru',
 }))
 app.use(VueAxios, axios)
+app.use(Maska)
 app.axios.defaults.baseURL = "http://127.0.0.1:8000/";
 app.axios.defaults.headers.post['X-CSRFToken'] = getCsrfToken()
 app.axios.defaults.headers.post['Content-Type'] = "application/json"

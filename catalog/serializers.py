@@ -15,7 +15,7 @@ class ColorSerializer(serializers.ModelSerializer):
 
 
 class ProductPhotoSerializer(serializers.ModelSerializer):
-    queryset = ProductPhoto.objects.first()
+    queryset = ProductPhoto.objects.first
 
     class Meta:
         model = ProductPhoto

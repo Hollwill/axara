@@ -5,16 +5,19 @@ from sorl.thumbnail import ImageField
 from django.utils.html import escape, mark_safe
 from django.urls import reverse
 from pytils.translit import slugify
+from django.contrib.auth import get_user_model
 
 SIZES = tuple((str(i), str(i)) for i in range(42, 60, 2))
 """Используются: фото(o2m), категория, название, цена, размеры"""
 
+User = get_user_model()
 
 class PreviewProductManager(models.Manager):
 
     def get_queryset(self):
         q_product_variant = ProductVariant.objects.prefetch_related('photos').filter(show_on_preview=True)
         p_product_variant = models.Prefetch('variants', queryset=q_product_variant, to_attr='preview_variant')
+
 
         return super() \
             .get_queryset() \
@@ -52,6 +55,11 @@ class Product(models.Model):
     class Meta:
         ordering = ['-creation_date']
 
+    def get_absolute_url(self):
+        return reverse('catalog:product_detail', kwargs={
+            'category': self.category.slug,
+            'product_slug': self.variants.first().slug,
+        })
 
 class CartProductVariantManager(models.Manager):
     def get_queryset(self):
@@ -74,15 +82,17 @@ class ProductVariant(models.Model):
     color = models.ForeignKey("Color", on_delete=models.SET_DEFAULT, default=1)
     vendor_code = models.CharField(max_length=200)
     price = models.IntegerField()
-    slug = models.SlugField(unique=True, blank=True)
+    slug = models.SlugField(unique=True, null=True, blank=True)
 
     objects = models.Manager()
     cart_objects = CartProductVariantManager()
     full_objects = FullProductVariantManager()
 
     def save(self, *args, **kwargs):
-        self.slug = f'{slugify(self.product.name)}-{slugify(self.color.name)}'
+        if not self.slug:
+            self.slug = f'{slugify(self.product.name)}-{slugify(self.color.name)}'
         super().save(*args, **kwargs)
+
 
     def get_absolute_url(self):
         return reverse('catalog:product_detail', kwargs={

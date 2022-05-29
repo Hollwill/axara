@@ -9,6 +9,7 @@ from django import forms
 from django.forms.widgets import SelectMultiple
 from django.template.defaultfilters import escape
 
+
 class AdminImageWidget(AdminFileWidget):
     def render(self, name, value, attrs=None, renderer=None):
         output = []
@@ -37,6 +38,8 @@ class ColorSelectMultipleWidget(SelectMultiple):
             for opt in opts:
                 opt['color'] = opt['value'].instance.color
         return context
+
+
 
 
 class ProductVariantInline(NestedStackedInline):
@@ -81,5 +84,6 @@ class QuestionAdmin(admin.ModelAdmin):
             reverse(f'admin:{obj._meta.app_label}_product_change', args=[obj.product_variant.product.id]),
             escape(obj.product_variant.product.name)
         ))
+
     product_variant_link.allow_tags = True
     product_variant_link.short_description = 'Ссылка на вариант продукта'

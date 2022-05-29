@@ -1,8 +1,8 @@
 from django.conf import settings
 import copy
 from catalog.models import ProductVariant
-from django.core import serializers
 from catalog.serializers import ProductVariantSerializer
+
 
 class Cart:
     def __init__(self, request):
@@ -75,7 +75,6 @@ class Cart:
             variant = item['product_variant']
             serialized_variant = ProductVariantSerializer(variant)
             item['product_variant'] = serialized_variant.data
-        ...
         return cart_items
 
     def clear(self):

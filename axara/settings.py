@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     'nested_admin',
     'webpack_loader',
     'rest_framework',
+    'phonenumber_field',
 
 ]
 
@@ -82,11 +83,18 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
-    'axara.middlewares.LoginFormMiddleware',
-    'axara.middlewares.logout_middleware',
+    'main.middlewares.AuthFormMiddleware',
+    'main.middlewares.logout_middleware',
 
     'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'user_profile.backends.NumberModelBackend',
+]
+
+AUTH_USER_MODEL = 'user_profile.User'
+
 CART_SESSION_ID = 'cart'
 
 ROOT_URLCONF = 'axara.urls'

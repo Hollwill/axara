@@ -20,6 +20,7 @@ class CatalogView(ListView):
 
     def get_queryset(self):
         novelties = self.request.GET.get('novelties')
+        bookmarks = self.request.GET.get('bookmarks')
         category_slug = self.kwargs.get('category')
         if not category_slug:
             products = Product.preview_objects.all()
@@ -27,6 +28,12 @@ class CatalogView(ListView):
             products = Product.preview_objects.filter(category__slug=category_slug)
         if novelties is not None:
             products = products.filter(is_novelty=True)
+        if bookmarks is not None:
+            product_ids = self.request.session.get('bookmarks')
+            if product_ids:
+                products = products.filter(id__in=product_ids)
+            else:
+                messages.info(self.request, 'В закладках нет ни одного товара')
         return products
 
 
@@ -66,3 +73,14 @@ def handle_q_a_form(request, variant):
         return QuestionForm()
     else:
         return q_a_form
+
+def switch_bookmark(request, product_id):
+    if 'bookmarks' not in request.session:
+        request.session['bookmarks'] = []
+    if product_id in request.session['bookmarks']:
+        request.session['bookmarks'].remove(product_id)
+
+    else:
+        request.session['bookmarks'].append(product_id)
+    request.session.modified = True
+    return redirect(request.META['HTTP_REFERER'])

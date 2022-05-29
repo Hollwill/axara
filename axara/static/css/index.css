@@ -24,7 +24,7 @@
     margin-bottom: 15px;
 }
 
-.product-wrap img {
+.product-wrap .carousel-inner img {
     display: block;
     width: 100%;
 }
@@ -123,11 +123,11 @@ main .container-fluid {
     display: none !important;
 }
 
-.cart-icon {
+.nav-icon {
     position: relative;
 }
 
-.cart-icon:focus {
+.nav-icon:focus {
     box-shadow: none
 }
 

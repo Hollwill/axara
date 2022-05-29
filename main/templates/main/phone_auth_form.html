@@ -1,0 +1,100 @@
+{% load crispy_forms_tags %}
+{% load bootstrap5 %}
+
+<script src="https://unpkg.com/vue@3"></script>
+<script src="https://cdn.jsdelivr.net/npm/maska@latest/dist/maska.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+<div id="authByPhone" class="modal-body">
+    <form method="POST" @submit="submitHandler($event)">
+        {% csrf_token %}
+        <input type="hidden" name="is_auth_phone_form" value="on">
+
+        <div id="div_id_username" class="mb-3">
+            <label for="id_phone" class="form-label requiredField">
+                Телефон<span class="asteriskField">*</span> </label>
+
+            <input @input="phoneInput" @maska="rawPhoneNumber = $event.target.dataset.maskRawValue"
+                   class="textinput textInput form-control"
+                   v-model="phoneNumber" v-maska="'+7 (###) ###-##-##'">
+            <span v-if="wrongNumber" style="color: red">Аккаунта с таким номером телефона не существует</span>
+        </div>
+        <button v-if="!numberSented" @click="sendPhoneNumber" class="btn btn-primary" type="button"
+                :disabled="!phoneIsValid">Отправить код
+        </button>
+
+        <div v-if="numberSented" class="mb-3"><label for="id_sms_code" class="form-label requiredField">
+            Код из смс<span class="asteriskField">*</span> </label> <input type="text" name="sms_code"
+                                                                           class="textinput textInput form-control"
+                                                                           required
+                                                                           id="id_sms_code"></div>
+
+        <button class="btn btn-primary" type="submit" v-if="numberSented">Подтвердить</button>
+    </form>
+</div>
+
+<script>
+    const {createApp} = Vue
+
+    const app = createApp({
+        delimiters: ["[[", "]]"],
+        data() {
+            return {
+                phoneNumber: '',
+                rawPhoneNumber: '',
+                numberSented: false,
+                wrongNumber: false
+            }
+        },
+        computed: {
+            phoneIsValid() {
+                return this.checkPhoneValid()
+            }
+        },
+        methods: {
+            phoneInput() {
+                this.numberSented = false
+            },
+            checkPhoneValid() {
+
+                return this.rawPhoneNumber.length === 10;
+            },
+            submitHandler(event) {
+                if (!this.numberSented) {
+                    event.preventDefault()
+
+                    if (this.checkPhoneValid()) {
+
+                        this.sendPhoneNumber()
+                    }
+                }
+            },
+            sendPhoneNumber() {
+                axios.post("{% url 'user_profile:send_code_to_phone' %}", {
+                    phone_number: this.rawPhoneNumber
+                }, {
+                    headers: {
+                        'X-CSRFToken': this.getCsrfToken(),
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                }).then(response => {
+                    console.log(response)
+                    this.numberSented = true
+                    this.wrongNumber = false
+                }).catch(response => {
+                    if (response.response.status === 400) {
+                        this.wrongNumber = true
+                    }
+                })
+            },
+            getCsrfToken() {
+                return document.cookie.match("(^|;)\\s*" + "csrftoken" + "\\s*=\\s*([^;]+)")?.pop()
+            }
+        },
+
+
+    })
+    app.use(window.Maska)
+    app.mount('#authByPhone')
+</script>

@@ -22,9 +22,14 @@
         <div class="container-fluid">
             <a class="navbar-brand" href="{% url 'main:index' %}"><img src="{% static "icons/logo.png" %}" alt=""></a>
             <div class="nav-right d-inline-block">
+                <a href="{% url 'catalog:catalog' %}?bookmarks" class="nav-icon btn d-inline-block d-lg-none" >
+                    <img class="mx-2"
+                         src="{% static 'icons/bookmark.svg' %}"
+                         alt="cart">
+                </a>
                 {% url 'order:make' as make_order %}
                 {% if not request.get_full_path == make_order %}
-                    <button type="button" class="btn cart-icon d-inline-block d-lg-none" data-toggle="modal"
+                    <button type="button" class="btn nav-icon d-inline-block d-lg-none" data-toggle="modal"
                             data-bs-target="#modal-cart"
                             data-bs-toggle="modal"
                             data-bs-backdrop="false">
@@ -70,8 +75,13 @@
                         <a class="nav-link" href="#">LookBook</a>
                     </li>
                 </ul>
+                <a href="{% url 'catalog:catalog' %}?bookmarks" class="nav-icon p-0 btn d-none d-lg-block" >
+                    <img class="mx-2 "
+                         src="{% static 'icons/bookmark.svg' %}"
+                         alt="cart">
+                </a>
                 {% if not request.get_full_path == make_order %}
-                    <button type="button" class=" cart-icon btn d-none d-lg-block" data-toggle="modal"
+                    <button type="button" class="p-0 nav-icon btn d-none d-lg-block" data-toggle="modal"
                             data-bs-target="#modal-cart"
                             data-bs-toggle="modal"
                             data-bs-backdrop="false">
@@ -117,20 +127,45 @@
     </div>
 </footer>
 <div id="modal-login" class="modal" tabindex="-1">
+
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Ваш аккаунт</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                <form method="POST">
-                    {% csrf_token %}
-                    <input type="hidden" name="is_auth_form" value="on">
-                    {{ request.auth_form|crispy }}
-                    {% bootstrap_button button_type="submit" content="Войти" %}
-                </form>
+            <nav class="container">
+                <div class="nav nav-tabs " id="nav-auth-tab" role="tablist">
+                    <button class="nav-link active" id="nav-auth-email-tab" data-bs-toggle="tab"
+                            data-bs-target="#nav-auth-email"
+                            type="button" role="tab" aria-controls="nav-auth-email" aria-selected="true">Войти по email
+                    </button>
+                    <button class="nav-link" id="nav-auth-phone-tab" data-bs-toggle="tab"
+                            data-bs-target="#nav-auth-phone"
+                            type="button" role="tab" aria-controls="nav-auth-phone" aria-selected="false">Войти по
+                        номеру телефона
+                    </button>
+                </div>
+            </nav>
+            <div class="tab-content" id="nav-tabContent">
+                <div class="tab-pane fade show active" id="nav-auth-email" role="tabpanel"
+                     aria-labelledby="nav-auth-email-tab"
+                     tabindex="0">
+                    <div id="authByEmail" class="modal-body">
+                        <form method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" name="is_auth_form" value="on">
+                            {{ request.auth_form|crispy }}
+                            {% bootstrap_button button_type="submit" content="Войти" %}
+                        </form>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="nav-auth-phone" role="tabpanel" aria-labelledby="nav-auth-phone-tab"
+                     tabindex="0">
+                    {% include 'main/phone_auth_form.html' %}
+                </div>
             </div>
+
+
             <div class="modal-footer d-flex justify-content-center">
                 <p>У вас ещё нет аккаунта?
                     <a class="btn btn-primary" data-bs-toggle="modal" href="#modal-create" role="button">Зарегистрироваться</a>
@@ -190,12 +225,12 @@
                                                     <h5>{{ product_variant.price }} руб.</h5>
                                                     <div class="d-inline-block cart-element-count">
                                                         <p class="fs-6 d-inline-block">Количество:</p>
-                                                        <button class="btn cart-icon"
+                                                        <button class="btn nav-icon"
                                                                 onclick="subQuantity({{ product_variant.id }}, {{ item.size }})">
                                                             <img src="{% static 'icons/remove.svg' %}" alt="remove">
                                                         </button>
                                                         <span>{{ item.quantity }}</span>
-                                                        <button class="btn cart-icon"
+                                                        <button class="btn nav-icon"
                                                                 onclick="addQuantity({{ product_variant.id }}, {{ item.size }})">
                                                             <img src="{% static 'icons/add.svg' %}" alt="add">
                                                         </button>
@@ -242,6 +277,7 @@
     <script src="{% static 'js/show_auth_modal_on_load.js' %}"></script>
 {% endif %}
 <script src="{% static 'js/cart.js' %}"></script>
+<script src="{% static 'js/auth_collapse.js' %}"></script>
 
 <script>
     window.addEventListener("load", function (event) {

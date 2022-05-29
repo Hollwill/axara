@@ -1,3 +1,8 @@
+<script setup>
+import {createInput} from '@formkit/vue'
+import MaskedTelInput from './MaskedTelInput'
+const maskedTel = createInput(MaskedTelInput)
+</script>
 <template>
   <div class="form">
 
@@ -5,10 +10,10 @@
       <label class="col-4 "><span class="h5">Телефон</span><span class="form-star-required">*</span></label>
       <div class="col-8">
         <FormKit
-            type="text"
+            :type="maskedTel"
             name="phone"
             placeholder="xxx-xxx-xxxx"
-            :validation="[['required'], ['matches', /^\d{3}-\d{3}-\d{4}$/] ]"
+            :validation="[['required'], ['matches', /^\d{10}/] ]"
             validation-label="телефон"
             :validation-messages="{
               matches: 'Формат номера должен быть: xxx-xxx-xxxx',

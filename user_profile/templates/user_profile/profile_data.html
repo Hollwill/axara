@@ -19,11 +19,12 @@
                 <form method="POST">
                     <h2>Личные данные</h2>
                     {% csrf_token %}
-                    {{ user_form.first_name|as_crispy_field }}
-                    {{ user_form.last_name|as_crispy_field }}
-                    {{ profile_form.patronymic|as_crispy_field }}
-                    {{ user_form.email|as_crispy_field }}
-                    {{ profile_form.birth_date|as_crispy_field }}
+                    <input type="hidden" name="is_user_form">
+                    {{ user_form|crispy }}
+                    <div class="w-100 mb-4 d-flex justify-content-center">
+                        <a href="" role="button" data-bs-toggle="modal" data-bs-target="#change-phone">Изменить
+                            номер</a>
+                    </div>
                     <h3>Изменить пароль</h3>
                     {{ change_password_form|crispy }}
                     {% bootstrap_button button_type="submit" content="Сохранить анкету" %}
@@ -33,8 +34,97 @@
             <div class="col-sm-12 col-md-3 col-lg-4 col-xl-4"></div>
         </div>
     </div>
+    <div class="modal change-phone" id="change-phone" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Смена номера телефона</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="new-phone-form">
+                        {{ user_form.phone_number|as_crispy_field }}
+                        <div class="mb-3">
+                            <label for="new-phone-number" class="form-label requiredField">
+                                Новый номер телефона<span class="asteriskField">*</span>
+                            </label>
+                            <input data-mask="+7 (###) ###-##-##" type="tel" name="new_phone_number"
+                                   class="textinput textInput form-control mb-4"
+                                   required="" id="new-phone-number">
+                            <span id="new-number-error-text" style="color: red;" class="d-none">Пожалуйста введите действительный номер телефона</span>
+                            <button id="fetch-new-phone" class="btn btn-primary" type="button" disabled
+                                    onclick="submitNewPhone()">Отправить код подтверждения
+                            </button>
+                        </div>
+                    </div>
+                    <div id="code-confirmation-form" class="d-none">
+                        <form method="POST">
+                            {% csrf_token %}
+
+                            <label for="confirmation-code" class="form-label requiredField">
+                                На Ваш новый номер мобильного телефона отправлено SMS с кодом подтверждения
+                                изменения<span class="asteriskField">*</span>
+                            </label>
+                            <input data-mask="####" type="text" name="confirmation_code"
+                                   class="textinput textInput form-control mb-4"
+                                   required="" id="confirmation-code">
+                            <button id="confirmation-code-submit" class="btn btn-primary" type="submit" disabled>
+                                Подтвердить код
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
 
 {% block extrafooter %}
     {% load i18n %}
+    <script src="https://cdn.jsdelivr.net/npm/maska@latest/dist/maska.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+    <script>
+        var mask = Maska.create('#new-phone-number');
+        Maska.create('#confirmation-code')
+        let newPhone = document.getElementById('new-phone-number')
+        let confirmCodeInput = document.getElementById('confirmation-code')
+
+        newPhone.oninput = function (e) {
+            let button = document.getElementById('fetch-new-phone')
+            button.disabled = e.target.getAttribute('data-mask-raw-value').length !== 10;
+        }
+
+        confirmCodeInput.oninput = function (e) {
+            let button = document.getElementById('confirmation-code-submit')
+            button.disabled = e.target.getAttribute('data-mask-raw-value').length !== 4;
+        }
+
+        let getCsrfToken = function () {
+            return document.cookie.match("(^|;)\\s*" + "csrftoken" + "\\s*=\\s*([^;]+)")?.pop()
+        }
+        let submitNewPhone = function () {
+            axios.post("{% url 'user_profile:change_phone_number' %}", {
+                new_phone: newPhone.dataset.maskRawValue
+            }, {
+                headers: {
+                    'X-CSRFToken': getCsrfToken(),
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            }).then(response => {
+                console.log(response)
+                document.getElementById('new-phone-form').classList.add('d-none')
+                document.getElementById('code-confirmation-form').classList.remove('d-none')
+
+
+                {#this.numberSented = true#}
+                {#this.wrongNumber = false#}
+            }).catch(response => {
+                if (response.response.status === 400) {
+                    document.getElementById('new-number-error-text').classList.remove('d-none')
+                }
+            })
+        }
+    </script>
 {% endblock %}

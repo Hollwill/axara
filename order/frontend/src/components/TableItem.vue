@@ -18,12 +18,12 @@
     <td>
       <div class="d-inline-block cart-element-count">
         <p class="fs-6 d-inline-block">Количество:</p>
-        <button class="btn cart-icon" v-on:click="itemAction('sub')">
+        <button class="btn nav-icon" v-on:click="itemAction('sub')">
           <img src="@/assets/remove.svg" alt="remove">
 
         </button>
         <span>{{ item.quantity }}</span>
-        <button class="btn cart-icon" v-on:click="itemAction('add')">
+        <button class="btn nav-icon" v-on:click="itemAction('add')">
           <img src="@/assets/add.svg" alt="add">
         </button>
       </div>

@@ -1,39 +1,52 @@
 {% with variant=product.preview_variant.pop %}
-<div class="col product-inner mb-2">
-    <a href="{{ variant.get_absolute_url }}" class="product-detail">
-        <div class="product-wrap">
-            <div id="{{ variant.slug }}" class="carousel slide" data-bs-interval="false">
-                <div class="carousel-inner">
-                    {% for photo_obj in variant.photos.all %}
-                        <div class="carousel-item {% if forloop.first %}active {% endif %}">
-                            <img loading="lazy" src="{{ photo_obj.photo.url }}" class="d-block w-100" alt="...">
-                        </div>
-                    {% endfor %}
+    <div class="col product-inner mb-2">
+        <a href="{{ variant.get_absolute_url }}" class="product-detail">
+            <div class="product-wrap">
+                <div id="{{ variant.slug }}" class="carousel slide" data-bs-interval="false">
+                    <div class="carousel-inner">
+                        {% for photo_obj in variant.photos.all %}
+                            <div class="carousel-item {% if forloop.first %}active {% endif %}">
+                                <img loading="lazy" src="{{ photo_obj.photo.url }}" class="d-block w-100" alt="...">
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <button class="carousel-control-prev" type="button"
+                            data-bs-target="#{{ variant.slug }}"
+                            data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button"
+                            data-bs-target="#{{ variant.slug }}"
+                            data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                    {#                        <img src="{% static 'img/166570098-034-7.jpg' %}">#}
+                    <div class="card-sizes d-flex justify-content-center ">
+                        {% for size in product.sizes %}
+                            <div class="mx-2">{{ size }}</div>
+                        {% endfor %}
+                    </div>
                 </div>
-                <button class="carousel-control-prev" type="button"
-                        data-bs-target="#{{ variant.slug }}"
-                        data-bs-slide="prev">
-                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Previous</span>
-                </button>
-                <button class="carousel-control-next" type="button"
-                        data-bs-target="#{{ variant.slug }}"
-                        data-bs-slide="next">
-                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Next</span>
-                </button>
-                {#                        <img src="{% static 'img/166570098-034-7.jpg' %}">#}
-                <div class="card-sizes d-flex justify-content-center ">
-                    {% for size in product.sizes %}
-                        <div class="mx-2">{{ size }}</div>
-                    {% endfor %}
+                <div class="product-info row">
+                    <div class="col-10">
+                        <h3 class="product-title"><a href="{{ variant.get_absolute_url }}">{{ product.name|title }}</a>
+                        </h3>
+                        <span class="price">₽ {{ variant.price }}</span>
+                    </div>
+                    <div class="col-2 mt-3">
+                        <a href="{% url 'catalog:add_bookmark' product.id %}">
+                            {% if product.id in request.session.bookmarks %}
+                                <img src="{% static 'icons/bookmark_fill.svg' %}" alt="">
+                            {% else %}
+                                <img src="{% static 'icons/bookmark.svg' %}" alt="">
+                            {% endif %}
+                        </a>
+                    </div>
+
                 </div>
             </div>
-            <div class="product-info">
-                <h3 class="product-title"><a href="{{ variant.get_absolute_url }}">{{ product.name|title}}</a></h3>
-                <span class="price">₽ {{ variant.price }}</span>
-            </div>
-        </div>
-    </a>
-</div>
+        </a>
+    </div>
 {% endwith %}
