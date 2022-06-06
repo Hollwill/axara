@@ -2,7 +2,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from user_profile.forms import EmailPhonenumberUserCreationForm
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import redirect
-
+from django.contrib import messages
 
 class AuthFormMiddleware:
     def __init__(self, get_response):
@@ -16,6 +16,7 @@ class AuthFormMiddleware:
                 creation_form = EmailPhonenumberUserCreationForm(request.POST)
                 if creation_form.is_valid():
                     creation_form.save()
+                    messages.info(request, 'Вы успешно зарегистрировались')
             elif 'is_auth_form' in request.POST:
                 auth_form = AuthenticationForm(request=request, data=request.POST)
                 if auth_form.is_valid():

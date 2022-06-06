@@ -1,0 +1,26 @@
+{% extends 'user_profile/main.html' %}
+{% block title %}Ваши заказы{% endblock %}
+
+{% block profile_content %}
+    <div class="order-list">
+        {% for order in orders %}
+
+
+            <div class="order mb-4 border">
+                <div class="order-info d-flex justify-content-between mb-4">
+                    <span class="fs-4 ms-2">Заказ № {{ order.id }}</span>
+                    <span class="mt-2">{{ order.full_price }} руб.</span>
+                    <span class="me-2 mt-2">{{ order.makes_date }}</span>
+                </div>
+                <div class="order-content d-flex justify-content-between">
+                    <img class="img-thumbnail  m-3" src="{{ order.photo }}" alt="">
+                    <div class="button-container d-flex align-items-end">
+
+                        <a class="btn btn-primary m-3" href="{{ order.get_absolute_url }}">Подробнее</a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+
+    </div>
+{% endblock %}

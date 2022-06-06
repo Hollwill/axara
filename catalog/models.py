@@ -12,12 +12,12 @@ SIZES = tuple((str(i), str(i)) for i in range(42, 60, 2))
 
 User = get_user_model()
 
+
 class PreviewProductManager(models.Manager):
 
     def get_queryset(self):
         q_product_variant = ProductVariant.objects.prefetch_related('photos').filter(show_on_preview=True)
         p_product_variant = models.Prefetch('variants', queryset=q_product_variant, to_attr='preview_variant')
-
 
         return super() \
             .get_queryset() \
@@ -35,18 +35,19 @@ class FullProductManager(models.Manager):
 
 
 class Product(models.Model):
-    name = models.CharField(max_length=200, )
+    name = models.CharField('Название', max_length=200, )
 
     is_active = models.BooleanField("Доступно", default=False)
-    is_novelty = models.BooleanField(default=False)
-    category = models.ForeignKey("Category", related_name='products', on_delete=models.DO_NOTHING)
+    is_novelty = models.BooleanField('Новинка', default=False)
+    category = models.ForeignKey("Category", verbose_name='Категория', related_name='products',
+                                 on_delete=models.DO_NOTHING)
 
-    sizes = MultiSelectField(choices=SIZES)
-    fabric_structure = models.CharField(max_length=200, )
-    description = models.TextField()
+    sizes = MultiSelectField('Размеры', choices=SIZES)
+    fabric_structure = models.CharField('Состав', max_length=200, )
+    description = models.TextField('Описание')
     # exists_in_magazines = допилить когда начну писать вкладку магазины
 
-    creation_date = models.DateTimeField(auto_now_add=True)
+    creation_date = models.DateTimeField('Дата создания', auto_now_add=True)
 
     objects = models.Manager()
     full_objects = FullProductManager()
@@ -54,12 +55,15 @@ class Product(models.Model):
 
     class Meta:
         ordering = ['-creation_date']
+        verbose_name = 'Продукт'
+        verbose_name_plural = 'Продукты'
 
     def get_absolute_url(self):
         return reverse('catalog:product_detail', kwargs={
             'category': self.category.slug,
             'product_slug': self.variants.first().slug,
         })
+
 
 class CartProductVariantManager(models.Manager):
     def get_queryset(self):
@@ -78,21 +82,30 @@ class FullProductVariantManager(models.Manager):
 
 class ProductVariant(models.Model):
     product = models.ForeignKey("Product", on_delete=models.CASCADE, related_name='variants')
-    show_on_preview = models.BooleanField(default=False)
-    color = models.ForeignKey("Color", on_delete=models.SET_DEFAULT, default=1)
-    vendor_code = models.CharField(max_length=200)
-    price = models.IntegerField()
-    slug = models.SlugField(unique=True, null=True, blank=True)
+    show_on_preview = models.BooleanField('Показывать на превью', default=False)
+    color = models.ForeignKey("Color", verbose_name='цвет', on_delete=models.SET_DEFAULT, default=1)
+    vendor_code = models.CharField('артикул', max_length=200)
+    price = models.IntegerField('цена')
+    slug = models.SlugField('чпу', unique=True, null=True, blank=True)
 
     objects = models.Manager()
     cart_objects = CartProductVariantManager()
     full_objects = FullProductVariantManager()
+
+    class Meta:
+        verbose_name = 'вариант продукта'
+        verbose_name_plural = 'варианты продукта'
+
+    def __str__(self):
+        return f'{self.product.name} - {self.color.name}'
 
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = f'{slugify(self.product.name)}-{slugify(self.color.name)}'
         super().save(*args, **kwargs)
 
+    def size_is_valid(self, size):
+        return str(size) in self.product.sizes
 
     def get_absolute_url(self):
         return reverse('catalog:product_detail', kwargs={
@@ -102,8 +115,12 @@ class ProductVariant(models.Model):
 
 
 class Category(models.Model):
-    name = models.CharField(max_length=200)
-    slug = models.SlugField(unique=True)
+    name = models.CharField('название', max_length=200)
+    slug = models.SlugField('чпу', unique=True)
+
+    class Meta:
+        verbose_name = 'категория'
+        verbose_name_plural = 'категории'
 
     def __str__(self):
         return self.name
@@ -114,7 +131,14 @@ class Category(models.Model):
 
 class ProductPhoto(models.Model):
     product_variant = models.ForeignKey("ProductVariant", related_name='photos', on_delete=models.CASCADE)
-    photo = ImageField(upload_to='photos/%Y/%m/%d/')
+    photo = ImageField('фото', upload_to='photos/%Y/%m/%d/')
+
+    def __str__(self):
+        return f'фотография - {self.product_variant.product.name}'
+
+    class Meta:
+        verbose_name = 'фотография варианта продукта'
+        verbose_name_plural = 'фотографии варианта продукта'
 
     def image_tag(self):
         return '<img src="%s" />' % escape(self.photo.url)
@@ -125,13 +149,14 @@ class ProductPhoto(models.Model):
 
 # TODO: https://www.charuel.ru/catalogue/odezhda/platya/plate-zhenskoe-_289/
 class Question(models.Model):
-    text = models.TextField()
-    questioner = models.CharField(max_length=200)
-    email = models.EmailField()
-    question_date = models.DateField(auto_now_add=True)
-    product_variant = models.ForeignKey("ProductVariant", null=True, related_name='questions', on_delete=models.CASCADE)
-    answer = models.TextField(null=True)
-    answer_date = models.DateField(null=True)
+    text = models.TextField('Вопрос')
+    questioner = models.CharField('Имя', max_length=200)
+    email = models.EmailField('Почта')
+    question_date = models.DateField('дата вопроса', auto_now_add=True)
+    product_variant = models.ForeignKey("ProductVariant", verbose_name='вариант продукта', null=True,
+                                        related_name='questions', on_delete=models.CASCADE)
+    answer = models.TextField('ответ', null=True)
+    answer_date = models.DateField('дата ответа', null=True)
 
     def answered(self):
         return bool(self.answer)
@@ -140,11 +165,17 @@ class Question(models.Model):
 
     class Meta:
         ordering = ['-question_date']
+        verbose_name = 'Вопрос'
+        verbose_name_plural = 'Вопросы'
 
 
 class Color(models.Model):
-    name = models.CharField(max_length=200)
-    color = ColorField(default='#FF0000')
+    name = models.CharField('название цвета', max_length=200)
+    color = ColorField('цвет', default='#FF0000')
+
+    class Meta:
+        verbose_name = 'Цвет'
+        verbose_name_plural = 'Цвета'
 
     def __str__(self):
         return self.name
@@ -153,4 +184,4 @@ class Color(models.Model):
         return mark_safe('<div style="background-color: %s; width: 16px; height: 16px" ></div>' % self.color)
 
     color_admin_tag.allow_tags = True
-    color_admin_tag.short_description = 'Image'
+    color_admin_tag.short_description = 'Изображение'

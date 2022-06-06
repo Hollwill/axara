@@ -643,7 +643,7 @@ module.exports = __webpack_require__.p + "img/remove.svg";
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	!function() {
-/******/ 		__webpack_require__.h = function() { return "430fae07b1af3fee"; }
+/******/ 		__webpack_require__.h = function() { return "62cc96566f488d78"; }
 /******/ 	}();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
@@ -1684,7 +1684,7 @@ module.exports = __webpack_require__.p + "img/remove.svg";
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	__webpack_require__.O(undefined, ["chunk-vendors"], function() { return __webpack_require__("./node_modules/whatwg-fetch/fetch.js"); })
-/******/ 	__webpack_require__.O(undefined, ["chunk-vendors"], function() { return __webpack_require__("./node_modules/webpack-dev-server/client/index.js?protocol=ws&hostname=192.168.42.150&port=8080&pathname=%2Fws&logging=none&reconnect=10"); })
+/******/ 	__webpack_require__.O(undefined, ["chunk-vendors"], function() { return __webpack_require__("./node_modules/webpack-dev-server/client/index.js?protocol=ws&hostname=localhost&port=8080&pathname=%2Fws&logging=none&reconnect=10"); })
 /******/ 	__webpack_require__.O(undefined, ["chunk-vendors"], function() { return __webpack_require__("./node_modules/webpack/hot/dev-server.js"); })
 /******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["chunk-vendors"], function() { return __webpack_require__("./src/main.js"); })
 /******/ 	__webpack_exports__ = __webpack_require__.O(__webpack_exports__);

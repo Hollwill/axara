@@ -1,0 +1,18 @@
+{% extends 'main/main.html' %}
+
+{% block content %}
+    <div class="container mt-3">
+        <div class="row">
+            <div class="col-2 d-block">
+                <ul class="list-group service-links">
+                    <li class="list-group-item"><a href="{% url 'main:delivery' %}" class="link-secondary">Доставка и оплата</a></li>
+                    <li class="list-group-item"><a href="{% url 'main:faq' %}" class="link-secondary">Вопрос-ответ</a></li>
+                </ul>
+            </div>
+            <div class="col-10">
+                {% block service_content %}{% endblock %}
+            </div>
+        </div>
+
+    </div>
+{% endblock %}

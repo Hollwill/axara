@@ -17,6 +17,7 @@
             <input @input="phoneInput" @maska="rawPhoneNumber = $event.target.dataset.maskRawValue"
                    class="textinput textInput form-control"
                    v-model="phoneNumber" v-maska="'+7 (###) ###-##-##'">
+
             <span v-if="wrongNumber" style="color: red">Аккаунта с таким номером телефона не существует</span>
         </div>
         <button v-if="!numberSented" @click="sendPhoneNumber" class="btn btn-primary" type="button"

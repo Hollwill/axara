@@ -7,7 +7,7 @@ def nav_categories(request):
     return context_extras
 
 
-def cart(request):
+def cart_processor(request):
     cart = Cart(request)
     context_extras = {'cart': list(cart), 'cart_obj': cart}
     return context_extras

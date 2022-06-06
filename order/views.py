@@ -1,7 +1,6 @@
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 import json
-from collections import namedtuple
 from django.contrib.auth import get_user_model
 from .models import Order, OrderItem
 from catalog.models import ProductVariant
@@ -14,13 +13,17 @@ def create_order(request):
     request_data = json.loads(request.body)
     order_data = request_data['order_data']
     if not request.user.is_authenticated:
-        user = User(
-            phone_number=f'+7{order_data["phone"]}',
-            email=order_data['email'],
-            first_name=order_data['name'],
-            last_name=order_data['subname']
-        )
-        user.save()
+        phone_number = f'+7{order_data["phone"]}'
+        try:
+            user = User.objects.get(phone_number=phone_number)
+        except User.DoesNotExist:
+            user = User(
+                phone_number=phone_number,
+                email=order_data['email'],
+                first_name=order_data['name'],
+                last_name=order_data['subname']
+            )
+            user.save()
     else:
         user = request.user
     order = Order(

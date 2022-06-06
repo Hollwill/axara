@@ -28,13 +28,14 @@ SECRET_KEY = 'django-insecure-h1!wat6wu$)qv-%6kz!-hc%fh7^2ah!w(ft_^&0%odndqc1t&$
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 INTERNAL_IPS = [
     # ...
     "127.0.0.1",
     # ...
 ]
+YANDEX_MAPS_API_KEY = '3057be88-78fb-4c99-9e3d-db0983c80156'
 
 # Application definition
 
@@ -51,7 +52,9 @@ INSTALLED_APPS = [
     'user_profile',
     'cart',
     'order',
+    'store',
     'django_cleanup.apps.CleanupConfig',
+    'rangefilter',
 
 
     'debug_toolbar',
@@ -66,6 +69,7 @@ INSTALLED_APPS = [
     'webpack_loader',
     'rest_framework',
     'phonenumber_field',
+    'ckeditor',
 
 ]
 
@@ -111,7 +115,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'axara.context_processors.nav_categories',
-                'axara.context_processors.cart',
+                'axara.context_processors.cart_processor',
             ],
             'builtins': [
                 'django.templatetags.static',

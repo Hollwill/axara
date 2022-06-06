@@ -30,3 +30,4 @@ class ProductVariantSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductVariant
         fields = ['id', 'product', 'color', 'vendor_code', 'price', 'photos']
+

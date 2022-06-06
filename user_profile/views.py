@@ -1,8 +1,9 @@
 from django.http import HttpResponse
 from django.template import loader
 
+from django.views.generic import ListView, DetailView
 from django.contrib.auth.decorators import login_required
-
+from order.models import Order
 from .forms import UserForm, SetUserPasswordForm
 from django.contrib import messages
 from django.shortcuts import redirect
@@ -18,7 +19,6 @@ User = get_user_model()
 
 @login_required(login_url='/')
 def profile_view(request):
-    ...
     template = loader.get_template('user_profile/profile_data.html')
 
     user_form = UserForm(instance=request.user)
@@ -37,7 +37,6 @@ def profile_view(request):
             if user_form.is_valid():
                 user_form.save()
 
-
             change_password_form = SetUserPasswordForm(request.user, request.POST)
             if change_password_form.is_valid():
                 change_password_form.save()
@@ -51,6 +50,19 @@ def profile_view(request):
         'user_form': user_form,
         'change_password_form': change_password_form
     }, request))
+
+
+class OrderListView(ListView):
+    template_name = 'user_profile/order_list.html'
+    context_object_name = 'orders'
+
+    def get_queryset(self):
+        return Order.objects.filter(user=self.request.user)
+
+
+class OrderDetailView(DetailView):
+    template_name = 'user_profile/order_detail.html'
+    model = Order
 
 
 def send_code_to_phone(request):

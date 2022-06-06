@@ -1,83 +1,70 @@
-{% extends 'main/main.html' %}
+{% extends 'user_profile/main.html' %}
 {% load crispy_forms_tags %}
 {% load bootstrap5 %}
 
 {% block title %}Профиль пользователя{% endblock %}
 
-{% block content %}
-    <div class="container">
-        <div class="row justify-content-center mb-4">
-            <div class="col-sm-12 col-md-3 col-lg-2 col-xl-2">
-                <p><a href="">Личные данные</a></p>
-                <p><a href="">Мои заказы</a></p>
-                <p><a href="">Избранное</a></p>
-                <p><a href="">Выйти</a></p>
+{% block profile_content %}
 
+        <form method="POST">
+            <h2>Личные данные</h2>
+            {% csrf_token %}
+            <input type="hidden" name="is_user_form">
+            {{ user_form|crispy }}
+            <div class="w-100 mb-4 d-flex justify-content-center">
+                <a href="" role="button" data-bs-toggle="modal" data-bs-target="#change-phone">Изменить
+                    номер</a>
             </div>
-            <div class="col-sm-12 col-md-1 col-lg-2 col-xl-2"></div>
-            <div class="col-sm-12 col-md-5 col-lg-4 col-xl-4">
-                <form method="POST">
-                    <h2>Личные данные</h2>
-                    {% csrf_token %}
-                    <input type="hidden" name="is_user_form">
-                    {{ user_form|crispy }}
-                    <div class="w-100 mb-4 d-flex justify-content-center">
-                        <a href="" role="button" data-bs-toggle="modal" data-bs-target="#change-phone">Изменить
-                            номер</a>
+            <h3>Изменить пароль</h3>
+            {{ change_password_form|crispy }}
+            {% bootstrap_button button_type="submit" content="Сохранить анкету" %}
+        </form>
+        <div class="modal change-phone" id="change-phone" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Смена номера телефона</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
                     </div>
-                    <h3>Изменить пароль</h3>
-                    {{ change_password_form|crispy }}
-                    {% bootstrap_button button_type="submit" content="Сохранить анкету" %}
-                </form>
+                    <div class="modal-body">
+                        <div id="new-phone-form">
+                            {{ user_form.phone_number|as_crispy_field }}
+                            <div class="mb-3">
+                                <label for="new-phone-number" class="form-label requiredField">
+                                    Новый номер телефона<span class="asteriskField">*</span>
+                                </label>
+                                <input data-mask="+7 (###) ###-##-##" type="tel" name="new_phone_number"
+                                       class="textinput textInput form-control mb-4"
+                                       required="" id="new-phone-number">
+                                <span id="new-number-error-text" style="color: red;" class="d-none">Пожалуйста введите действительный номер телефона</span>
+                                <button id="fetch-new-phone" class="btn btn-primary" type="button" disabled
+                                        onclick="submitNewPhone()">Отправить код подтверждения
+                                </button>
+                            </div>
+                        </div>
+                        <div id="code-confirmation-form" class="d-none">
+                            <form method="POST">
+                                {% csrf_token %}
 
-            </div>
-            <div class="col-sm-12 col-md-3 col-lg-4 col-xl-4"></div>
-        </div>
-    </div>
-    <div class="modal change-phone" id="change-phone" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Смена номера телефона</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div id="new-phone-form">
-                        {{ user_form.phone_number|as_crispy_field }}
-                        <div class="mb-3">
-                            <label for="new-phone-number" class="form-label requiredField">
-                                Новый номер телефона<span class="asteriskField">*</span>
-                            </label>
-                            <input data-mask="+7 (###) ###-##-##" type="tel" name="new_phone_number"
-                                   class="textinput textInput form-control mb-4"
-                                   required="" id="new-phone-number">
-                            <span id="new-number-error-text" style="color: red;" class="d-none">Пожалуйста введите действительный номер телефона</span>
-                            <button id="fetch-new-phone" class="btn btn-primary" type="button" disabled
-                                    onclick="submitNewPhone()">Отправить код подтверждения
-                            </button>
+                                <label for="confirmation-code" class="form-label requiredField">
+                                    На Ваш новый номер мобильного телефона отправлено SMS с кодом подтверждения
+                                    изменения<span class="asteriskField">*</span>
+                                </label>
+                                <input data-mask="####" type="text" name="confirmation_code"
+                                       class="textinput textInput form-control mb-4"
+                                       required="" id="confirmation-code">
+                                <button id="confirmation-code-submit" class="btn btn-primary" type="submit"
+                                        disabled>
+                                    Подтвердить код
+                                </button>
+                            </form>
                         </div>
                     </div>
-                    <div id="code-confirmation-form" class="d-none">
-                        <form method="POST">
-                            {% csrf_token %}
-
-                            <label for="confirmation-code" class="form-label requiredField">
-                                На Ваш новый номер мобильного телефона отправлено SMS с кодом подтверждения
-                                изменения<span class="asteriskField">*</span>
-                            </label>
-                            <input data-mask="####" type="text" name="confirmation_code"
-                                   class="textinput textInput form-control mb-4"
-                                   required="" id="confirmation-code">
-                            <button id="confirmation-code-submit" class="btn btn-primary" type="submit" disabled>
-                                Подтвердить код
-                            </button>
-                        </form>
-                    </div>
                 </div>
             </div>
         </div>
-    </div>
-{% endblock %}
+    {% endblock %}
 
 {% block extrafooter %}
     {% load i18n %}

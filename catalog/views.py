@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from .models import Product, ProductVariant
 from .forms import QuestionForm
 from django.views.generic import ListView
-from cart.cart import Cart
+from cart.cart import Cart, ItemAlreadyExistsException
 from django.shortcuts import redirect
 from django.contrib import messages
 
@@ -55,8 +55,14 @@ def product_detail_view(request, category, product_slug):
 def handle_add_to_cart_form(request):
     if 'size' in request.POST:
         cart = Cart(request)
-        cart.add(ProductVariant.objects.get(id=request.POST['variant_id']), request.POST['size'])
-        messages.info(request, message='Товар добавлен в корзину')
+        product_variant = ProductVariant.objects.get(id=request.POST['variant_id'])
+        size = request.POST['size']
+        try:
+            cart.set_quantity(product_variant, size, action='add')
+        except ItemAlreadyExistsException:
+            messages.info(request, message='Товар уже в корзине')
+        else:
+            messages.info(request, message='Товар добавлен в корзину')
     else:
         messages.warning(request, message='Выберите размер')
 

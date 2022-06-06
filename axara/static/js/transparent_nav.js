@@ -1,13 +1,22 @@
 window.onscroll = function () {
     scrollFunction()
 };
+let nav = document.getElementById("navbar")
+let navTop = document.querySelector('#navbar-top')
 
 function scrollFunction() {
     if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
-        document.getElementById("navbar").style.background = "#f8f9fa";
+        nav.style.background = "white";
+
+        navTop.classList.remove('fixed-top')
+        nav.style.top = '0px'
+
 
     } else {
-        document.getElementById("navbar").style.background = "none";
+        nav.style.background = "none";
+        navTop.classList.add('fixed-top')
+        nav.style.top = '40px'
+
 
     }
 }

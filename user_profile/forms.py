@@ -6,9 +6,13 @@ from django.contrib.auth.forms import SetPasswordForm
 from django.contrib.auth import password_validation
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.forms import UserCreationForm, UsernameField
+from phonenumber_field.formfields import PhoneNumberField
+from django.forms.widgets import TextInput
 
 
 class EmailPhonenumberUserCreationForm(UserCreationForm):
+    phone_number = PhoneNumberField(widget=TextInput(attrs={'data-mask': '+7 (###) ###-##-##'}), label='Номер телефона')
+
     class Meta:
         model = get_user_model()
         fields = ("phone_number", "email")
